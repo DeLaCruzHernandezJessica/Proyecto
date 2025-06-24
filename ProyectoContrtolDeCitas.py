@@ -4,6 +4,7 @@ from tkinter import ttk
 import csv
 import os
 
+
 class Registrar_enfermero:
    def __init__(self, nombre, apellidop, apellidom, sexo, edad, telefono):
         self.nombre = nombre
@@ -510,12 +511,44 @@ def formulario(var, indx, mode):
       boton_paciente.grid(row=7, column=0, columnspan=3, pady=10)
    
 valor.trace_add("write", formulario)
-boton_ver_todos = tk.Button(ventana, text="Ver todos los pacientes registrados", command=mostrar_todos_los_pacientes)
-boton_ver_todos.pack(pady=10)
-boton_ver_medicos = tk.Button(ventana, text="Ver médicos registrados", command=mostrar_medicos)
-boton_ver_medicos.pack(pady=5)
-boton_ver_enfermeros = tk.Button(ventana, text="Ver enfermeros registrados", command=mostrar_enfermeros)
-boton_ver_enfermeros.pack(pady=5)
+
+ventana.configure(bg="#f0f4f7") 
+
+titulo = tk.Label(ventana, text="Sistema de Registro Hospitalario", font=("Calibri", 16, "bold"), bg="#f0f4f7", fg="#2c3e50")
+titulo.pack(pady=10)
+
+estilo = ttk.Style()
+estilo.theme_use("clam") 
+estilo.configure("TLabel", background="#f0f4f7", font=("Calibri", 11))
+estilo.configure("TButton", padding=6, relief="flat", background="#4a90e2", foreground="white", font=("Calibri", 10))
+estilo.map("TButton", background=[("active", "#357ABD")])
+estilo.configure("TCombobox", padding=4)
+estilo.configure("Treeview", font=("Calibri", 10), rowheight=24)
+estilo.configure("Treeview.Heading", font=("Calibri", 11, "bold"))
+
+for frame_ref in [frame, frame2]:
+    frame_ref.configure(bg="#ffffff", bd=2, relief="groove", padx=10, pady=10)
+
+def aplicar_fondo_widgets(widget):
+    for child in widget.winfo_children():
+        try:
+            if isinstance(child, tk.Label):
+                child.configure(bg="#ffffff", font=("Calibri", 11))
+            elif isinstance(child, tk.Entry):
+                child.configure(bg="#eef2f7", relief="groove")
+            elif isinstance(child, tk.Button):
+                child.configure(bg="#4a90e2", fg="white", relief="flat", font=("Calibri", 10), activebackground="#5389BF")
+            elif isinstance(child, ttk.Combobox):
+                child.configure(style="TCombobox")
+        except:
+            pass
+        aplicar_fondo_widgets(child)
+
+aplicar_fondo_widgets(ventana)
+
+tk.Button(ventana, text="Ver todos los pacientes registrados", command=mostrar_todos_los_pacientes, width=40).pack(pady=10)
+tk.Button(ventana, text="Ver médicos registrados", command=mostrar_medicos, width=40).pack(pady=5)
+tk.Button(ventana, text="Ver enfermeros registrados", command=mostrar_enfermeros, width=40).pack(pady=5)
 
 
 ventana.mainloop()
