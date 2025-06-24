@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
+import csv
+import os
 
 class Registrar_enfermero:
    def __init__(self, nombre, apellidop, apellidom, sexo, edad, telefono):
@@ -10,7 +12,7 @@ class Registrar_enfermero:
         self.sexo = sexo
         self.edad = edad
         self.telefono = telefono
-   def dato(self):
+   def datos(self):
       return f"{self.nombre} {self.apellidop} {self.apellidom} a sido registrado exitosamente"
 def registro_enfermeria():
    try:
@@ -23,10 +25,79 @@ def registro_enfermeria():
      if not all([nombre, apellidop, apellidom, sexo, edad, telefono]):
         raise ValueError("Todos los campos son obligatorios")
      registro = Registrar_enfermero(nombre, apellidop, apellidom, sexo, edad, telefono)
+     guardar_enfermero_en_csv(registro)
      mensaje = registro.datos()
      messagebox.showinfo("Datos Registrados", mensaje)
    except ValueError as e:
      messagebox.showwarning("error", "no se pudo completar el registro, porfavor intente de nuevo")
+
+def guardar_enfermero_en_csv(enfermero):
+    archivo = "enfermeros.csv"
+    existe = os.path.isfile(archivo)
+
+    with open(archivo, mode="a", newline='', encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if not existe:
+            writer.writerow(["Nombre", "Apellido Paterno", "Apellido Materno", "Sexo", "Edad", "Teléfono"])
+        writer.writerow([
+            enfermero.nombre,
+            enfermero.apellidop,
+            enfermero.apellidom,
+            enfermero.sexo,
+            enfermero.edad,
+            enfermero.telefono
+        ])
+
+def mostrar_medicos():
+    archivo = "medicos.csv"
+    if not os.path.isfile(archivo):
+        messagebox.showinfo("Sin registros", "Aún no hay médicos registrados.")
+        return
+
+    ventana_medicos = tk.Toplevel(ventana)
+    ventana_medicos.title("Médicos Registrados")
+    ventana_medicos.geometry("800x400")
+
+    tk.Label(ventana_medicos, text="Médicos Registrados", font=("Arial", 14, "bold")).pack(pady=10)
+
+    tree = ttk.Treeview(ventana_medicos, columns=("Nombre", "Apellido Paterno", "Apellido Materno", "Sexo", "Edad", "Teléfono", "Cargo", "Medico", "Enfermero"), show='headings')
+    tree.pack(expand=True, fill="both")
+    encabezados = ["Nombre", "Apellido Paterno", "Apellido Materno", "Sexo", "Edad", "Teléfono", "Cargo", "Medico", "Enfermero"]
+    for col in encabezados:
+        tree.heading(col, text=col)
+        tree.column(col, width=100)
+
+    with open(archivo, newline='', encoding="utf-8") as f:
+        reader = csv.reader(f)
+        next(reader)
+        for fila in reader:
+            tree.insert("", "end", values=fila)
+
+def mostrar_enfermeros():
+    archivo = "enfermeros.csv"
+    if not os.path.isfile(archivo):
+        messagebox.showinfo("Sin registros", "Aún no hay enfermeros registrados.")
+        return
+
+    ventana_enfermeros = tk.Toplevel(ventana)
+    ventana_enfermeros.title("Enfermeros Registrados")
+    ventana_enfermeros.geometry("800x400")
+
+    tk.Label(ventana_enfermeros, text="Enfermeros Registrados", font=("Arial", 14, "bold")).pack(pady=10)
+
+    tree = ttk.Treeview(ventana_enfermeros, columns=("Nombre", "Apellido Paterno", "Apellido Materno", "Sexo", "Edad", "Teléfono"), show='headings')
+    tree.pack(expand=True, fill="both")
+
+    encabezados = ["Nombre", "Apellido Paterno", "Apellido Materno", "Sexo", "Edad", "Teléfono"]
+    for col in encabezados:
+        tree.heading(col, text=col)
+        tree.column(col, width=100)
+
+    with open(archivo, newline='', encoding="utf-8") as f:
+        reader = csv.reader(f)
+        next(reader)  
+        for fila in reader:
+            tree.insert("", "end", values=fila)
 
 
 class Registrar_medico:
@@ -52,10 +123,55 @@ def registrar_usuario():
      if not all([nombre, apellidop, apellidom, sexo, edad, telefono, cargo]):
         raise ValueError("Todos los campos son obligatorios")
      registro = Registrar_medico(nombre, apellidop, apellidom, sexo, edad, telefono, cargo)
+     guardar_medico_en_csv(registro)
      mensaje = registro.datos()
      messagebox.showinfo("Datos Registrados", mensaje)
  except ValueError as e:
     messagebox.showwarning("error", str(e))
+
+def guardar_medico_en_csv(medico):
+    archivo = "medicos.csv"
+    existe = os.path.isfile(archivo)
+
+    with open(archivo, mode="a", newline='', encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if not existe:
+            writer.writerow(["Nombre", "Apellido Paterno", "Apellido Materno", "Sexo", "Edad", "Teléfono", "Cargo"])
+        writer.writerow([
+            medico.nombre,
+            medico.apellidop,
+            medico.apellidom,
+            medico.sexo,
+            medico.edad,
+            medico.telefono,
+            medico.cargo
+        ])
+
+def obtener_medicos():
+    medicos = []
+    archivo = "medicos.csv"
+    if os.path.isfile(archivo):
+        with open(archivo, newline='', encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader)
+            for fila in reader:
+                nombre_completo = f"{fila[0]} {fila[1]} {fila[2]}"
+                medicos.append(nombre_completo)
+    return medicos
+
+def obtener_enfermeros():
+    enfermeros = []
+    archivo = "enfermeros.csv"
+    if os.path.isfile(archivo):
+        with open(archivo, newline='', encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader)
+            for fila in reader:
+                nombre_completo = f"{fila[0]} {fila[1]} {fila[2]}"
+                enfermeros.append(nombre_completo)
+    return enfermeros
+
+
 
 class Pacientes:
     def __init__(self, nombre, apellidop, apellidom, telefono, area, especialista, id_paciente=None):
@@ -66,23 +182,215 @@ class Pacientes:
         self.area=area
         self.especialista=especialista
         self.id_paciente=id_paciente if id_paciente else format(id(self), "x")
-        
     def __str__(self):
         return f"Paciente registrado, ID paciente: {self.id_paciente}"
+    
+class PacienteCama(Pacientes):
+    camas_ocupadas = set()
+
+    @staticmethod
+    def obtener_cama(area):
+        if area=="Urgencias":
+            rango=range(1, 25)
+        elif area=="Hospitalizacion":
+            rango=range(25, 50)
+        elif area=="Cuidados Intensivos":
+            rango=range(50, 101)
+        else:
+            return None 
+        for cama in rango:
+            if cama not in PacienteCama.camas_ocupadas:
+                PacienteCama.camas_ocupadas.add(cama)
+                return cama
+        return None 
+
+    def __init__(self, nombre, apellidop, apellidom, telefono, area, especialista=None, medico_asignado=None, enfermero_asignado=None):
+        super().__init__(nombre, apellidop, apellidom, telefono, area, especialista)
+        cama=self.obtener_cama(area)
+        if cama is None:
+            raise Exception(f"No hay camas disponibles para el área: {area}")
+        self.cama_asignada = cama
+        self.medico_asignado = medico_asignado
+        self.enfermero_asignado = enfermero_asignado
+
+    def __str__(self):
+        return super().__str__() + f" - Cama asignada: {self.cama_asignada}"
+
+def guardar_paciente_en_csv(paciente_obj):
+    archivo = "pacientes.csv"
+    existe = os.path.isfile(archivo)
+
+    with open(archivo, mode="a", newline='', encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if not existe:
+            writer.writerow([
+                "ID", "Nombre", "Apellido Paterno", "Apellido Materno",
+                "Teléfono", "Área", "Especialista", "Cama Asignada",
+                "Médico Asignado", "Enfermero Asignado"
+            ])
+        
+        writer.writerow([
+            paciente_obj.id_paciente,
+            paciente_obj.nombre,
+            paciente_obj.apellidop,
+            paciente_obj.apellidom,
+            paciente_obj.telefono,
+            paciente_obj.area,
+            paciente_obj.especialista if paciente_obj.especialista else "N/A",
+            paciente_obj.cama_asignada if hasattr(paciente_obj, 'cama_asignada') else "No requiere",
+            paciente_obj.medico_asignado if hasattr(paciente_obj, 'medico_asignado') else "No asignado",
+            paciente_obj.enfermero_asignado if hasattr(paciente_obj, 'enfermero_asignado') else "No asignado"
+        ])
+
+
+
 def registro_paciente():
     try:
-     nombre=en_nombre.get()
-     apellidop=en_apellidop.get()
-     apellidom=en_apellidom.get()
-     telefono=en_telefono.get()
-     area=en_area.get()
-     especialista=en_especialista.get()
-     if not all([nombre, apellidop, apellidom, telefono, area]):
-         raise ValueError("Todos los campos son obligatorios")
-     nuevo_paciente=Pacientes(nombre, apellidop, apellidom, telefono, area, especialista, id_paciente=None)
-     messagebox.showinfo("Paciente registrado",str(nuevo_paciente))
+        nombre = en_nombre.get()
+        apellidop = en_apellidop.get()
+        apellidom = en_apellidom.get()
+        telefono = en_telefono.get()
+        area = en_area.get()
+        especialista = en_especialista.get() if en_area.get() == "Cita Medica(medico especialista)" else ""
+        medico = en_medico.get()
+        enfermero = en_enfermero.get()
+
+        if not all([nombre, apellidop, apellidom, telefono, area]):
+            raise ValueError("Todos los campos son obligatorios")
+
+        if area in ["Urgencias", "Hospitalizacion", "Cuidados Intensivos"]:
+            nuevo_paciente = PacienteCama(nombre, apellidop, apellidom, telefono, area, especialista, medico, enfermero)
+        else:
+            nuevo_paciente = Pacientes(nombre, apellidop, apellidom, telefono, area, especialista)
+
+        guardar_paciente_en_csv(nuevo_paciente)
+        messagebox.showinfo("Paciente registrado", str(nuevo_paciente))
+
     except ValueError as e:
         messagebox.showerror("Error", str(e))
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
+
+
+def mostrar_todos_los_pacientes():
+    archivo = "pacientes.csv"
+    if not os.path.isfile(archivo):
+        messagebox.showinfo("Sin registros", "Aún no hay pacientes registrados.")
+        return
+
+    ventana_lista = tk.Toplevel(ventana)
+    ventana_lista.title("Todos los pacientes registrados")
+    ventana_lista.geometry("900x450")
+
+    tk.Label(ventana_lista, text="Pacientes Registrados", font=("Arial", 14, "bold")).pack(pady=10)
+
+    tree = ttk.Treeview(ventana_lista, columns=("ID", "Nombre", "Paterno", "Materno", "Teléfono", "Área", "Especialista", "Cama", "Medico", "Enfermero"), show='headings')
+    tree.pack(expand=True, fill="both")
+
+    encabezados = ["ID", "Nombre", "Paterno", "Materno", "Teléfono", "Área", "Especialista", "Cama", "Medico", "Enfermero"]
+    for col in encabezados:
+        tree.heading(col, text=col)
+        tree.column(col, width=100)
+    with open(archivo, newline='', encoding="utf-8") as f:
+        reader = csv.reader(f)
+        next(reader)  
+        for fila in reader:
+            tree.insert("", "end", values=fila)
+
+    def eliminar_paciente():
+        seleccionado = tree.selection()
+        if not seleccionado:
+            messagebox.showwarning("Error", "Seleccione un paciente")
+            return
+        
+        confirm = messagebox.askyesno("Aviso", "¿Quiere eliminar el paciente seleccionado?")
+        if not confirm:
+            return
+
+        item = tree.item(seleccionado)
+        id_paciente = item['values'][0]
+
+        with open(archivo, newline='', encoding="utf-8") as f:
+            filas = list(csv.reader(f))
+        filas_nuevas = [filas[0]] + [fila for fila in filas[1:] if fila[0] != id_paciente]
+
+        with open(archivo, 'w', newline='', encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerows(filas_nuevas)
+
+        tree.delete(seleccionado)
+
+        messagebox.showinfo("Eliminado", " El paciente ha sido eliminado")
+
+    def editar_paciente():
+        seleccionado = tree.selection()
+        if not seleccionado:
+            messagebox.showwarning("Error", "Seleccione un paciente")
+            return
+
+        item = tree.item(seleccionado)
+        datos = item['values']
+
+        ventana_editar = tk.Toplevel(ventana_lista)
+        ventana_editar.title("Editar paciente")
+        ventana_editar.geometry("400x400")
+
+        labels = ["ID", "Nombre", "Apellido Paterno", "Apellido Materno", "Teléfono", "Área", "Especialista", "Cama"]
+        entradas = {}
+
+        for i, label in enumerate(labels):
+            tk.Label(ventana_editar, text=label).grid(row=i, column=0, pady=5, sticky="e")
+            if label == "ID" or label == "Cama":
+                entry = tk.Label(ventana_editar, text=datos[i])
+                entry.grid(row=i, column=1, pady=5)
+                entradas[label] = datos[i]
+            else:
+                entry = tk.Entry(ventana_editar)
+                entry.grid(row=i, column=1, pady=5)
+                entry.insert(0, datos[i])
+                entradas[label] = entry
+
+        def guardar_cambios():
+            nuevos_datos = []
+            for label in labels:
+                if label == "ID" or label == "Cama":
+                    nuevos_datos.append(entradas[label])
+                else:
+                    valor = entradas[label].get().strip()
+                    if not valor:
+                        messagebox.showerror("Error", f"El campo '{label}' no puede estar vacío.")
+                        return
+                    nuevos_datos.append(valor)
+
+            with open(archivo, newline='', encoding="utf-8") as f:
+                filas = list(csv.reader(f))
+            for i, fila in enumerate(filas):
+                if i > 0 and fila[0] == nuevos_datos[0]:
+                    filas[i] = nuevos_datos
+                    break
+
+            with open(archivo, 'w', newline='', encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerows(filas)
+
+            tree.item(seleccionado, values=nuevos_datos)
+
+            messagebox.showinfo("Guardado", "Cambios guardados correctamente.")
+            ventana_editar.destroy()
+
+        btn_guardar = tk.Button(ventana_editar, text="Guardar cambios", command=guardar_cambios)
+        btn_guardar.grid(row=len(labels), column=0, columnspan=2, pady=10)
+
+    frame_botones = tk.Frame(ventana_lista)
+    frame_botones.pack(pady=10)
+
+    btn_editar = tk.Button(frame_botones, text="Editar paciente", command=editar_paciente)
+    btn_editar.grid(row=0, column=0, padx=10)
+
+    btn_eliminar = tk.Button(frame_botones, text="Eliminar paciente", command=eliminar_paciente)
+    btn_eliminar.grid(row=0, column=1, padx=10)
+
+
 
 ventana=tk.Tk()
 ventana.title("Inicio")
@@ -100,7 +408,7 @@ opc = tk.OptionMenu(frame2, valor, "Medico", "Enfermero(a)", "Paciente")
 opc.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
 def formulario(var, indx, mode):
-   global en_nombre, en_apellidom, en_apellidop, en_telefono, en_edad, en_cargo, en_sexo, id_paciente, en_area, en_especialista
+   global en_nombre, en_apellidom, en_apellidop, en_telefono, en_edad, en_cargo, en_sexo, id_paciente, en_area, en_especialista, en_enfermero, en_medico
    en_especialista=None
    
    for widget in frame.winfo_children():
@@ -174,6 +482,19 @@ def formulario(var, indx, mode):
       en_area.set
       combo_area=ttk.Combobox(frame, textvariable=en_area, values=["Urgencias", "Cuidados Intensivos", "Hospitalizacion", "Cita Medica(medico especialista)", "Chequeo medico"])
       combo_area.grid(row=5, column=1, padx=10, pady=5)
+
+      tk.Label(frame, text="Asignar Médico").grid(row=7, column=0, sticky="e")
+      en_medico = tk.StringVar()
+      combo_medico = ttk.Combobox(frame, textvariable=en_medico, values=obtener_medicos())
+      combo_medico.grid(row=7, column=1, padx=10, pady=5)
+
+      tk.Label(frame, text="Asignar Enfermero(a)").grid(row=8, column=0, sticky="e")
+      en_enfermero = tk.StringVar()
+      combo_enfermero = ttk.Combobox(frame, textvariable=en_enfermero, values=obtener_enfermeros())
+      combo_enfermero.grid(row=8, column=1, padx=10, pady=5)
+
+
+
       en_especialista_label=tk.Label(frame, text="Ingrese especialista a consultar")
       en_especialista=tk.Entry(frame)
       def mostrar_especialista(*args):
@@ -187,6 +508,14 @@ def formulario(var, indx, mode):
 
       boton_paciente=tk.Button(frame, text="Registrar paciente", command=registro_paciente)
       boton_paciente.grid(row=7, column=0, columnspan=3, pady=10)
+   
 valor.trace_add("write", formulario)
+boton_ver_todos = tk.Button(ventana, text="Ver todos los pacientes registrados", command=mostrar_todos_los_pacientes)
+boton_ver_todos.pack(pady=10)
+boton_ver_medicos = tk.Button(ventana, text="Ver médicos registrados", command=mostrar_medicos)
+boton_ver_medicos.pack(pady=5)
+boton_ver_enfermeros = tk.Button(ventana, text="Ver enfermeros registrados", command=mostrar_enfermeros)
+boton_ver_enfermeros.pack(pady=5)
+
 
 ventana.mainloop()
